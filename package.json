@@ -1,0 +1,14 @@
+{
+  "name": "graph",
+  "version": "0.0.1",
+  "description": "A graph library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "devineej",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.8.2"
+  }
+}
