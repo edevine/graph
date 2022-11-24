@@ -4,7 +4,7 @@
   "description": "A graph library",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --project ./demo/server/",
+    "build": "tsc --project ./lib/ & tsc --project ./demo/server/",
     "start": "node ./demo/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
