@@ -7,7 +7,7 @@ export type CircularLayoutConfig = {
 
 export default function circularLayout(
   { nodes }: GraphData,
-  { minDistance }: CircularLayoutConfig
+  { minDistance }: CircularLayoutConfig,
 ): Layout {
   const xAxis = new Float64Array(nodes.length);
   const yAxis = new Float64Array(nodes.length);

@@ -15,7 +15,7 @@ export type GraphData = {
 export default function createGraphData(
   nodeCount: number,
   meanEdges: number,
-  edgeDeviation: number
+  edgeDeviation: number,
 ): GraphData {
   const maxEdges = nodeCount - 1;
   if (meanEdges >= maxEdges) {

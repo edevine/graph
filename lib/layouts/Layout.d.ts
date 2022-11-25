@@ -1,4 +1,4 @@
 export type Layout = {
-  xAxis: Float64Array,
-  yAxis: Float64Array,
-}
+  xAxis: Float64Array;
+  yAxis: Float64Array;
+};
