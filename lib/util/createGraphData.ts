@@ -29,7 +29,7 @@ export default function createGraphData(
   }
   for (let i = 0; i < nodeCount; i++) {
     const sourceID = nodes[i];
-    const edgeCount = Math.max(Math.round(getEdgeCount()), maxEdges);
+    const edgeCount = Math.min(Math.round(getEdgeCount()), maxEdges);
     const ids = new Set();
     while (ids.size < edgeCount) {
       const targetID = nodes[Math.floor(Math.random() * nodeCount)];
