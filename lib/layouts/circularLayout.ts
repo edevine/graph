@@ -1,4 +1,5 @@
 import type { GraphData } from '../util/createGraphData';
+import MultiMap from '../util/MultiMap';
 import { Layout } from './Layout';
 
 export type CircularLayoutConfig = {
@@ -6,9 +7,17 @@ export type CircularLayoutConfig = {
 };
 
 export default function circularLayout(
-  { nodes }: GraphData,
+  { edges, nodes }: GraphData,
   { minDistance }: CircularLayoutConfig,
 ): Layout {
+  const edgeMap = new MultiMap();
+  for (const [source, target] of edges) {
+    edgeMap.add(source, target);
+    edgeMap.add(target, source);
+  }
+
+  nodes.sort((a, b) => edgeMap.sizeAt(b) - edgeMap.sizeAt(a));
+
   const xAxis = new Float64Array(nodes.length);
   const yAxis = new Float64Array(nodes.length);
 
