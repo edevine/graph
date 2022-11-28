@@ -15,6 +15,12 @@ export default function drawGraph(
   }
 
   context.save();
+  context.resetTransform();
+  context.fillStyle = 'white';
+  context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+  context.restore();
+  context.fillStyle = 'black';
+
   for (const [sourceID, targetID] of edges) {
     context.beginPath();
     const sourceIndex = nodeIndices.get(sourceID);

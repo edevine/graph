@@ -1,25 +1,42 @@
 import { JSX, render } from 'preact';
-import { useEffect, useMemo, useState } from 'preact/hooks';
-import createGraphData from '../../lib/util/createGraphData';
-import circularLayout from '../../lib/layouts/circularLayout';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import createGraphData, { GraphData } from '../../lib/util/createGraphData';
+import forceDirectedLayout from '../../lib/layouts/forceDirectedLayout';
 import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
 
 function App(): JSX.Element {
+  const initRef = useRef(false);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
 
-  const graphData = useMemo(() => createGraphData(100, 3, 1), []);
-  const layout = useMemo(() => circularLayout(graphData, { minDistance: 40 }), []);
-  const bound = useMemo(() => getLayoutBoundingRect(layout), [layout]);
+  const graphData = useMemo(() => createGraphData(20, 1, 1), []);
+  const [layout, setLayout] = useState({
+    xAxis: new Float64Array(graphData.nodes.length),
+    yAxis: new Float64Array(graphData.nodes.length),
+  });
+
+  useEffect(() => {
+    let handle = 0;
+    const callback = () => {
+      setLayout(forceDirectedLayout(graphData, layout));
+      handle = requestAnimationFrame(callback);
+    };
+    handle = requestAnimationFrame(callback);
+    return () => cancelAnimationFrame(handle);
+  }, []);
 
   useEffect(() => {
     if (canvas != null) {
       const context = canvas.getContext('2d')!;
-      resetGraphZoom(context, bound, 20);
+      const bound = getLayoutBoundingRect(layout);
+      if (!initRef.current) {
+        initRef.current = true;
+        resetGraphZoom(context, bound, 20);
+      }
       drawGraph(context, graphData, layout);
     }
-  }, [canvas]);
+  }, [canvas, layout]);
 
   return <canvas ref={setCanvas} width={800} height={600} />;
 }
