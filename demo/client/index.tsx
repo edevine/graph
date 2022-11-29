@@ -6,6 +6,13 @@ import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
 
+const canvasStyle = {
+  display: 'block',
+  postion: 'fixed',
+  top: '0',
+  left: '0',
+};
+
 function App(): JSX.Element {
   const initRef = useRef(false);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
@@ -38,7 +45,15 @@ function App(): JSX.Element {
     }
   }, [canvas, layout]);
 
-  return <canvas ref={setCanvas} width={800} height={600} />;
+  const canvasSize = useMemo(
+    () => ({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }),
+    [],
+  );
+
+  return <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />;
 }
 
 render(<App />, document.getElementById('app')!);
