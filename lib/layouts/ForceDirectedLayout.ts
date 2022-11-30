@@ -5,10 +5,14 @@ const GRAVITY = -0.02;
 const FORCE = 100;
 
 export default class ForceDirectedLayout implements GraphLayout {
-  constructor(private data: GraphData) {}
+  #data: GraphData;
+
+  constructor(data: GraphData) {
+    this.#data = data;
+  }
 
   layout({ xAxis, yAxis }: Layout): Layout {
-    const { nodes, edges } = this.data;
+    const { nodes, edges } = this.#data;
     const nodeIndices = new Map();
     for (let i = 0; i < nodes.length; i++) {
       nodeIndices.set(nodes[i], i);

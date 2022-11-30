@@ -7,17 +7,23 @@ export type CircularLayoutConfig = {
 };
 
 export default class CircularLayout implements GraphLayout {
-  private initialized = false;
-  constructor(private settings: CircularLayoutConfig, private data: GraphData) {}
+  #initialized = false;
+  #settings: CircularLayoutConfig;
+  #data: GraphData;
+
+  constructor(settings: CircularLayoutConfig, data: GraphData) {
+    this.#settings = settings;
+    this.#data = data;
+  }
 
   layout(previousLayout: Layout): Layout {
-    if (this.initialized) {
+    if (this.#initialized) {
       return previousLayout;
     }
-    this.initialized = true;
+    this.#initialized = true;
 
-    const { minDistance } = this.settings;
-    const { nodes, edges } = this.data;
+    const { minDistance } = this.#settings;
+    const { nodes, edges } = this.#data;
     const edgeMap = new MultiMap();
     for (const [source, target] of edges) {
       edgeMap.add(source, target);

@@ -37,7 +37,7 @@ function App(): JSX.Element {
   return (
     <>
       <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />
-      <Toolbar graph={graph} />
+      {graph && <Toolbar graph={graph} />}
     </>
   );
 }
