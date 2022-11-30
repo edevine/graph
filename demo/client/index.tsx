@@ -1,22 +1,33 @@
 import { JSX, render } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import createGraphData from '../../lib/util/createGraphData';
+import circularLayout from '../../lib/layouts/circularLayout';
 import forceDirectedLayout from '../../lib/layouts/forceDirectedLayout';
 import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
 import Interactions from '../../lib/interactions/Interactions';
+import Toolbar, { LayoutType } from './Toolbar';
 
 const canvasStyle = {
   display: 'block',
-  postion: 'fixed',
-  top: '0',
-  left: '0',
+  position: 'fixed',
+  top: '0px',
+  left: '0px',
 };
+
+const iterativeLayouts = new Set<LayoutType>(['force-directed']);
 
 function App(): JSX.Element {
   const initRef = useRef(false);
+  const layoutTypeRef = useRef<LayoutType>('force-directed');
+  const newLayoutRef = useRef(true);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+
+  const setLayoutType = (layoutType: LayoutType) => {
+    newLayoutRef.current = true;
+    layoutTypeRef.current = layoutType;
+  };
 
   const graphData = useMemo(() => createGraphData(20, 1, 1), []);
   const [layout, setLayout] = useState({
@@ -33,7 +44,18 @@ function App(): JSX.Element {
   useEffect(() => {
     let handle = 0;
     const callback = () => {
-      setLayout(forceDirectedLayout(graphData, layout));
+      const layoutType = layoutTypeRef.current;
+      if (newLayoutRef.current || iterativeLayouts.has(layoutType)) {
+        newLayoutRef.current = false;
+        switch (layoutType) {
+          case 'circular':
+            setLayout(circularLayout(graphData, { minDistance: 40 }));
+            break;
+          case 'force-directed':
+            setLayout(forceDirectedLayout(graphData, layout));
+            break;
+        }
+      }
       handle = requestAnimationFrame(callback);
     };
     handle = requestAnimationFrame(callback);
@@ -60,7 +82,12 @@ function App(): JSX.Element {
     [],
   );
 
-  return <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />;
+  return (
+    <>
+      <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />
+      <Toolbar value={layoutTypeRef.current} onChange={setLayoutType} />
+    </>
+  );
 }
 
 render(<App />, document.getElementById('app')!);
