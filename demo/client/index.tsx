@@ -6,7 +6,7 @@ import forceDirectedLayout from '../../lib/layouts/forceDirectedLayout';
 import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
-import Interactions from '../../lib/interactions/Interactions';
+import Graph from '../../lib/Graph';
 import Toolbar, { LayoutType } from './Toolbar';
 
 const canvasStyle = {
@@ -37,7 +37,7 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (canvas != null) {
-      return new Interactions(canvas).init();
+      return new Graph(canvas).init();
     }
   }, [canvas]);
 

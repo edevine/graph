@@ -1,7 +1,7 @@
 const ZOOM_FACTOR = 1.2;
 const LEFT_MOUSE_BUTTON = 0;
 
-export default class Interactions {
+export default class Graph {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
 
