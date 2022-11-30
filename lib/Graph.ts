@@ -1,21 +1,60 @@
 import drawGraph from './render/drawGraph';
 import { GraphData } from './util/createGraphData';
 import { Layout } from './layouts/Layout';
+import circularLayout from './layouts/circularLayout';
+import forceDirectedLayout from './layouts/forceDirectedLayout';
+
+export type LayoutType = 'circular' | 'force-directed';
 
 const ZOOM_FACTOR = 1.2;
 const LEFT_MOUSE_BUTTON = 0;
 
+const iterativeLayouts = new Set<LayoutType>(['force-directed']);
+
 export default class Graph {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
+  private layoutType: LayoutType = 'force-directed';
+  private hasNewLayout = true;
+  private layoutPos: Layout | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
   }
 
-  draw(graphData: GraphData, layout: Layout): void {
-    drawGraph(this.context, graphData, layout);
+  setLayout(layoutType: LayoutType): void {
+    if (layoutType !== this.layoutType) {
+      this.layoutType = layoutType;
+      this.hasNewLayout = true;
+    }
+  }
+
+  layout(graphData: GraphData): void {
+    if (this.layoutPos == null) {
+      this.layoutPos = {
+        xAxis: new Float64Array(graphData.nodes.length),
+        yAxis: new Float64Array(graphData.nodes.length),
+      };
+    }
+    if (this.hasNewLayout || iterativeLayouts.has(this.layoutType)) {
+      this.hasNewLayout = false;
+      switch (this.layoutType) {
+        case 'circular':
+          this.layoutPos = circularLayout(graphData, { minDistance: 40 });
+          break;
+        case 'force-directed':
+          this.layoutPos = forceDirectedLayout(graphData, this.layoutPos);
+          break;
+      }
+    }
+  }
+
+  draw(graphData: GraphData): void {
+    if (this.layoutPos == null) {
+      return;
+    }
+    drawGraph(this.context, graphData, this.layoutPos);
   }
 
   pan(event: MouseEvent): void {

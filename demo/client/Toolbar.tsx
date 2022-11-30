@@ -1,4 +1,5 @@
 import { JSX } from 'preact';
+import { LayoutType } from '../../lib/Graph';
 
 const toolbarContainerStyle = {
   display: 'flex',
@@ -16,8 +17,6 @@ const toolbarStyle = {
   padding: '5px',
   pointerEvents: 'auto',
 };
-
-export type LayoutType = 'circular' | 'force-directed';
 
 type Props = {
   value: LayoutType;

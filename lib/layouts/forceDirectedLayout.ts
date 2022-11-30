@@ -34,7 +34,6 @@ export default function forceDirectedLayout(
       let dy = yAxis[j] - yAxis[i];
       if (dx === 0) dx = Math.random();
       if (dy === 0) dy = Math.random();
-      const len = (dx ** 2 + dy ** 2) ** 0.5;
 
       const forceX = (dx / dx ** 2) * FORCE;
       const forceY = (dy / dy ** 2) * FORCE;
