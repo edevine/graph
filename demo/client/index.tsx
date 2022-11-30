@@ -3,7 +3,6 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import createGraphData from '../../lib/util/createGraphData';
 import circularLayout from '../../lib/layouts/circularLayout';
 import forceDirectedLayout from '../../lib/layouts/forceDirectedLayout';
-import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
 import Graph from '../../lib/Graph';
@@ -19,6 +18,7 @@ const canvasStyle = {
 const iterativeLayouts = new Set<LayoutType>(['force-directed']);
 
 function App(): JSX.Element {
+  const graphRef = useRef<Graph | null>(null);
   const initRef = useRef(false);
   const layoutTypeRef = useRef<LayoutType>('force-directed');
   const newLayoutRef = useRef(true);
@@ -37,7 +37,9 @@ function App(): JSX.Element {
 
   useEffect(() => {
     if (canvas != null) {
-      return new Graph(canvas).init();
+      const graph = new Graph(canvas);
+      graphRef.current = graph;
+      return graph.init();
     }
   }, [canvas]);
 
@@ -70,7 +72,7 @@ function App(): JSX.Element {
         initRef.current = true;
         resetGraphZoom(context, bound, 20);
       }
-      drawGraph(context, graphData, layout);
+      graphRef.current?.draw(graphData, layout);
     }
   }, [canvas, layout]);
 

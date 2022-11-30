@@ -1,3 +1,7 @@
+import drawGraph from './render/drawGraph';
+import { GraphData } from './util/createGraphData';
+import { Layout } from './layouts/Layout';
+
 const ZOOM_FACTOR = 1.2;
 const LEFT_MOUSE_BUTTON = 0;
 
@@ -8,6 +12,10 @@ export default class Graph {
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
+  }
+
+  draw(graphData: GraphData, layout: Layout): void {
+    drawGraph(this.context, graphData, layout);
   }
 
   pan(event: MouseEvent): void {
