@@ -1,10 +1,11 @@
 import { JSX, render } from 'preact';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import createGraphData, { GraphData } from '../../lib/util/createGraphData';
+import createGraphData from '../../lib/util/createGraphData';
 import forceDirectedLayout from '../../lib/layouts/forceDirectedLayout';
 import drawGraph from '../../lib/render/drawGraph';
 import resetGraphZoom from '../../lib/render/resetGraphZoom';
 import getLayoutBoundingRect from '../../lib/layouts/getLayoutBoundingRect';
+import Interactions from '../../lib/interactions/Interactions';
 
 const canvasStyle = {
   display: 'block',
@@ -22,6 +23,12 @@ function App(): JSX.Element {
     xAxis: new Float64Array(graphData.nodes.length),
     yAxis: new Float64Array(graphData.nodes.length),
   });
+
+  useEffect(() => {
+    if (canvas != null) {
+      return new Interactions(canvas).init();
+    }
+  }, [canvas]);
 
   useEffect(() => {
     let handle = 0;
