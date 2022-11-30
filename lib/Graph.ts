@@ -46,6 +46,10 @@ export default class Graph {
     }
   }
 
+  getLayoutType(): LayoutType {
+    return this.layoutType;
+  }
+
   layout(): void {
     if (this.layoutPos == null) {
       this.layoutPos = {

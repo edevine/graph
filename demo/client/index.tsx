@@ -12,25 +12,16 @@ const canvasStyle = {
 };
 
 function App(): JSX.Element {
-  const graphRef = useRef<Graph | null>(null);
-  const layoutTypeRef = useRef<LayoutType>('force-directed');
-  const newLayoutRef = useRef(true);
+  const [graph, setGraph] = useState<Graph | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-
-  const setLayoutType = (layoutType: LayoutType) => {
-    newLayoutRef.current = true;
-    layoutTypeRef.current = layoutType;
-    graphRef.current?.setLayout(layoutType);
-  };
-
   const graphData = useMemo(() => createGraphData(20, 1, 1), []);
 
   useEffect(() => {
     if (canvas != null) {
       const graph = new Graph(canvas);
       graph.setData(graphData);
-      graph.setLayout(layoutTypeRef.current);
-      graphRef.current = graph;
+      graph.setLayout('force-directed');
+      setGraph(graph);
       return graph.init();
     }
   }, [canvas]);
@@ -46,7 +37,7 @@ function App(): JSX.Element {
   return (
     <>
       <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />
-      <Toolbar value={layoutTypeRef.current} onChange={setLayoutType} />
+      <Toolbar graph={graph} />
     </>
   );
 }

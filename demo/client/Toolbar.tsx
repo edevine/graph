@@ -1,5 +1,5 @@
 import { JSX } from 'preact';
-import { LayoutType } from '../../lib/Graph';
+import Graph, { LayoutType } from '../../lib/Graph';
 
 const toolbarContainerStyle = {
   display: 'flex',
@@ -19,19 +19,19 @@ const toolbarStyle = {
 };
 
 type Props = {
-  value: LayoutType;
-  onChange: (value: LayoutType) => void;
+  graph: Graph;
 };
 
-export default function Toolbar(props: Props): JSX.Element {
-  const onChange = (event: Event) => {
+export default function Toolbar({ graph }: Props): JSX.Element {
+  const setLayoutType = (event: Event) => {
     const element = event.target as HTMLSelectElement;
-    props.onChange(element.value as LayoutType);
+    graph.setLayout(element.value as LayoutType);
   };
+
   return (
     <div style={toolbarContainerStyle}>
       <div style={toolbarStyle}>
-        <select onChange={onChange} value={props.value}>
+        <select onChange={setLayoutType} value={graph.getLayoutType()}>
           <option value="circular">Circular</option>
           <option value="force-directed">Force Directed</option>
         </select>
