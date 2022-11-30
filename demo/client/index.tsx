@@ -28,6 +28,7 @@ function App(): JSX.Element {
   useEffect(() => {
     if (canvas != null) {
       const graph = new Graph(canvas);
+      graph.setData(graphData);
       graphRef.current = graph;
       return graph.init();
     }
@@ -39,8 +40,8 @@ function App(): JSX.Element {
     }
     let handle = 0;
     const callback = () => {
-      graphRef.current?.layout(graphData);
-      graphRef.current?.draw(graphData);
+      graphRef.current?.layout();
+      graphRef.current?.draw();
       handle = requestAnimationFrame(callback);
     };
     handle = requestAnimationFrame(callback);

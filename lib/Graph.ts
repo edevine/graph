@@ -17,10 +17,15 @@ export default class Graph {
   private layoutType: LayoutType = 'force-directed';
   private hasNewLayout = true;
   private layoutPos: Layout | null = null;
+  private data: GraphData = { nodes: [], edges: [] };
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
+  }
+
+  setData(data: GraphData): void {
+    this.data = data;
   }
 
   setLayout(layoutType: LayoutType): void {
@@ -30,31 +35,31 @@ export default class Graph {
     }
   }
 
-  layout(graphData: GraphData): void {
+  layout(): void {
     if (this.layoutPos == null) {
       this.layoutPos = {
-        xAxis: new Float64Array(graphData.nodes.length),
-        yAxis: new Float64Array(graphData.nodes.length),
+        xAxis: new Float64Array(this.data.nodes.length),
+        yAxis: new Float64Array(this.data.nodes.length),
       };
     }
     if (this.hasNewLayout || iterativeLayouts.has(this.layoutType)) {
       this.hasNewLayout = false;
       switch (this.layoutType) {
         case 'circular':
-          this.layoutPos = circularLayout(graphData, { minDistance: 40 });
+          this.layoutPos = circularLayout(this.data, { minDistance: 40 });
           break;
         case 'force-directed':
-          this.layoutPos = forceDirectedLayout(graphData, this.layoutPos);
+          this.layoutPos = forceDirectedLayout(this.data, this.layoutPos);
           break;
       }
     }
   }
 
-  draw(graphData: GraphData): void {
+  draw(): void {
     if (this.layoutPos == null) {
       return;
     }
-    drawGraph(this.context, graphData, this.layoutPos);
+    drawGraph(this.context, this.data, this.layoutPos);
   }
 
   pan(event: MouseEvent): void {
