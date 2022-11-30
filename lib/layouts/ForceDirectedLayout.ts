@@ -11,7 +11,7 @@ export default class ForceDirectedLayout implements GraphLayout {
     this.#data = data;
   }
 
-  layout({ xAxis, yAxis }: Layout): Layout {
+  layout({ xAxis, yAxis }: Layout, lockedNodes: Set<number>): Layout {
     const { nodes, edges } = this.#data;
     const nodeIndices = new Map();
     for (let i = 0; i < nodes.length; i++) {
@@ -59,6 +59,7 @@ export default class ForceDirectedLayout implements GraphLayout {
     }
 
     for (let i = 0; i < xForces.length; i++) {
+      if (lockedNodes.has(i)) continue;
       const x = xForces[i];
       const y = yForces[i];
       if (x > 0.5 || x < -0.5) xAxis[i] += x / 10;

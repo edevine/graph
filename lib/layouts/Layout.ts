@@ -4,5 +4,5 @@ export type Layout = {
 };
 
 export interface GraphLayout {
-  layout(previousLayout: Layout): Layout;
+  layout(previousLayout: Layout, lockedNodes: Set<number>): Layout;
 }
