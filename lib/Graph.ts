@@ -78,7 +78,15 @@ export default class Graph {
 
   init(): () => void {
     const canvas = this.canvas;
+    let renderHandle = 0;
     let isMouseDown = false;
+
+    const renderCallback = () => {
+      this.layout();
+      this.draw();
+      renderHandle = requestAnimationFrame(renderCallback);
+    };
+    renderHandle = requestAnimationFrame(renderCallback);
 
     const onWheel = (event: WheelEvent) => {
       this.zoomAt(event);
@@ -108,6 +116,7 @@ export default class Graph {
     canvas.addEventListener('mouseup', onMouseUp);
 
     return () => {
+      cancelAnimationFrame(renderHandle);
       canvas.removeEventListener('wheel', onWheel);
       canvas.removeEventListener('mousemove', onMouseDown);
       canvas.removeEventListener('mousemove', onMouseMove);

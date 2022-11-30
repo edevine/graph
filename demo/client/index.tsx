@@ -34,20 +34,6 @@ function App(): JSX.Element {
     }
   }, [canvas]);
 
-  useEffect(() => {
-    if (canvas == null) {
-      return;
-    }
-    let handle = 0;
-    const callback = () => {
-      graphRef.current?.layout();
-      graphRef.current?.draw();
-      handle = requestAnimationFrame(callback);
-    };
-    handle = requestAnimationFrame(callback);
-    return () => cancelAnimationFrame(handle);
-  }, [canvas]);
-
   const canvasSize = useMemo(
     () => ({
       width: window.innerWidth,
