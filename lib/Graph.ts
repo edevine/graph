@@ -1,10 +1,11 @@
 import drawGraph from './render/drawGraph';
 import { GraphData } from './util/createGraphData';
-import { Layout } from './layouts/Layout';
-import circularLayout from './layouts/circularLayout';
-import forceDirectedLayout from './layouts/forceDirectedLayout';
+import { GraphLayout, Layout } from './layouts/Layout';
+import CircularLayout from './layouts/CircularLayout';
+import ForceDirectedLayout from './layouts/ForceDirectedLayout';
+import NoLayout from './layouts/NoLayout';
 
-export type LayoutType = 'circular' | 'force-directed';
+export type LayoutType = 'circular' | 'force-directed' | 'none';
 
 const ZOOM_FACTOR = 1.2;
 const LEFT_MOUSE_BUTTON = 0;
@@ -14,10 +15,10 @@ const iterativeLayouts = new Set<LayoutType>(['force-directed']);
 export default class Graph {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
-  private layoutType: LayoutType = 'force-directed';
-  private hasNewLayout = true;
+  private layoutType: LayoutType = 'none';
   private layoutPos: Layout | null = null;
   private data: GraphData = { nodes: [], edges: [] };
+  private layoutImpl: GraphLayout = new NoLayout();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -31,7 +32,17 @@ export default class Graph {
   setLayout(layoutType: LayoutType): void {
     if (layoutType !== this.layoutType) {
       this.layoutType = layoutType;
-      this.hasNewLayout = true;
+      switch (layoutType) {
+        case 'circular':
+          this.layoutImpl = new CircularLayout({ minDistance: 40 }, this.data);
+          break;
+        case 'force-directed':
+          this.layoutImpl = new ForceDirectedLayout(this.data);
+          break;
+        case 'none':
+          this.layoutImpl = new NoLayout();
+          break;
+      }
     }
   }
 
@@ -42,17 +53,7 @@ export default class Graph {
         yAxis: new Float64Array(this.data.nodes.length),
       };
     }
-    if (this.hasNewLayout || iterativeLayouts.has(this.layoutType)) {
-      this.hasNewLayout = false;
-      switch (this.layoutType) {
-        case 'circular':
-          this.layoutPos = circularLayout(this.data, { minDistance: 40 });
-          break;
-        case 'force-directed':
-          this.layoutPos = forceDirectedLayout(this.data, this.layoutPos);
-          break;
-      }
-    }
+    this.layoutPos = this.layoutImpl.layout(this.layoutPos);
   }
 
   draw(): void {

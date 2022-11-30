@@ -29,6 +29,7 @@ function App(): JSX.Element {
     if (canvas != null) {
       const graph = new Graph(canvas);
       graph.setData(graphData);
+      graph.setLayout(layoutTypeRef.current);
       graphRef.current = graph;
       return graph.init();
     }
