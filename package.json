@@ -4,7 +4,7 @@
   "description": "A graph library",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --project ./lib/ & tsc --project ./demo/server/ & esbuild demo/client/index.tsx --bundle --outfile=\"demo/static/index.js\"",
+    "build": "tsc --project ./demo/server/ & esbuild demo/client/index.tsx --bundle --outfile=\"demo/static/index.js\"",
     "start": "node ./demo/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
