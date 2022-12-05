@@ -1,17 +1,25 @@
 import type { GraphData } from '../util/createGraphData';
 import { GraphLayout, Layout } from './Layout';
 
-const GRAVITY = -0.02;
-const FORCE = 100;
+type ForceDirectedLayoutSettings = {
+  gravity: number;
+  force: number;
+  velocity: number;
+};
 
 export default class ForceDirectedLayout implements GraphLayout {
   #data: GraphData;
+  #settings: ForceDirectedLayoutSettings;
 
-  constructor(data: GraphData) {
+  constructor(settings: ForceDirectedLayoutSettings, data: GraphData) {
+    this.#settings = settings;
     this.#data = data;
   }
 
   layout({ xAxis, yAxis }: Layout, lockedNodes: Set<number>): Layout {
+    const GRAVITY = this.#settings.gravity * -1;
+    const FORCE = this.#settings.force;
+    const VELOCITY = this.#settings.velocity;
     const { nodes, edges } = this.#data;
     const nodeIndices = new Map();
     for (let i = 0; i < nodes.length; i++) {
@@ -62,10 +70,14 @@ export default class ForceDirectedLayout implements GraphLayout {
       if (lockedNodes.has(i)) continue;
       const x = xForces[i];
       const y = yForces[i];
-      if (x > 0.5 || x < -0.5) xAxis[i] += x / 10;
-      if (y > 0.5 || y < -0.5) yAxis[i] += y / 10;
+      if (x > 0.5 || x < -0.5) xAxis[i] += x * VELOCITY;
+      if (y > 0.5 || y < -0.5) yAxis[i] += y * VELOCITY;
     }
 
     return { xAxis, yAxis };
+  }
+
+  setSettings(settings: ForceDirectedLayoutSettings): void {
+    this.#settings = settings;
   }
 }

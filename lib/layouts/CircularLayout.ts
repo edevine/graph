@@ -2,16 +2,16 @@ import type { GraphData } from '../util/createGraphData';
 import MultiMap from '../util/MultiMap';
 import { GraphLayout, Layout } from './Layout';
 
-export type CircularLayoutConfig = {
+export type CircularLayoutSettings = {
   minDistance: number;
 };
 
 export default class CircularLayout implements GraphLayout {
   #initialized = false;
-  #settings: CircularLayoutConfig;
+  #settings: CircularLayoutSettings;
   #data: GraphData;
 
-  constructor(settings: CircularLayoutConfig, data: GraphData) {
+  constructor(settings: CircularLayoutSettings, data: GraphData) {
     this.#settings = settings;
     this.#data = data;
   }
@@ -49,5 +49,10 @@ export default class CircularLayout implements GraphLayout {
       yAxis[i] = radius * Math.sin(theta);
     }
     return { xAxis, yAxis };
+  }
+
+  setSettings(settings: CircularLayoutSettings): void {
+    this.#initialized = false;
+    this.#settings = settings;
   }
 }

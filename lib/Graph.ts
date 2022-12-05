@@ -4,6 +4,7 @@ import { GraphLayout, Layout } from './layouts/Layout';
 import CircularLayout from './layouts/CircularLayout';
 import ForceDirectedLayout from './layouts/ForceDirectedLayout';
 import NoLayout from './layouts/NoLayout';
+import { Settings, defaultSettings } from './Settings';
 
 export type LayoutType = 'circular' | 'force-directed' | 'none';
 
@@ -19,6 +20,7 @@ export default class Graph {
   #data: GraphData = { nodes: [], edges: [] };
   #layoutImpl: GraphLayout = new NoLayout();
   #lockedNodes = new Set<number>();
+  #settings = defaultSettings;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#canvas = canvas;
@@ -34,15 +36,28 @@ export default class Graph {
       this.#layoutType = layoutType;
       switch (layoutType) {
         case 'circular':
-          this.#layoutImpl = new CircularLayout({ minDistance: 40 }, this.#data);
+          this.#layoutImpl = new CircularLayout(this.#settings.layouts.circular, this.#data);
           break;
         case 'force-directed':
-          this.#layoutImpl = new ForceDirectedLayout(this.#data);
+          this.#layoutImpl = new ForceDirectedLayout(
+            this.#settings.layouts.forceDirected,
+            this.#data,
+          );
           break;
         case 'none':
           this.#layoutImpl = new NoLayout();
           break;
       }
+    }
+  }
+
+  setSettings(settings: Settings): void {
+    this.#settings = settings;
+    const layout = this.#layoutImpl;
+    if (layout instanceof CircularLayout) {
+      layout.setSettings(settings.layouts.circular);
+    } else if (layout instanceof ForceDirectedLayout) {
+      layout.setSettings(settings.layouts.forceDirected);
     }
   }
 

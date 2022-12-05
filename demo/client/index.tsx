@@ -1,8 +1,9 @@
 import { JSX, render } from 'preact';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import createGraphData from '../../lib/util/createGraphData';
-import Graph, { LayoutType } from '../../lib/Graph';
+import Graph from '../../lib/Graph';
 import Toolbar from './Toolbar';
+import SettingsProvider from './SettingsProvider';
 
 const canvasStyle = {
   display: 'block',
@@ -14,7 +15,7 @@ const canvasStyle = {
 function App(): JSX.Element {
   const [graph, setGraph] = useState<Graph | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const graphData = useMemo(() => createGraphData(20, 1, 1), []);
+  const graphData = useMemo(() => createGraphData(50, 1, 1), []);
 
   useEffect(() => {
     if (canvas != null) {
@@ -35,10 +36,10 @@ function App(): JSX.Element {
   );
 
   return (
-    <>
+    <SettingsProvider>
       <canvas style={canvasStyle} ref={setCanvas} {...canvasSize} />
       {graph && <Toolbar graph={graph} />}
-    </>
+    </SettingsProvider>
   );
 }
 
