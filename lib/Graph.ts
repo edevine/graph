@@ -21,10 +21,16 @@ export default class Graph {
   #layoutImpl: GraphLayout = new NoLayout();
   #lockedNodes = new Set<number>();
   #settings = defaultSettings;
+  #renderHandler: () => void = () => {};
 
   constructor(canvas: HTMLCanvasElement) {
     this.#canvas = canvas;
     this.#context = canvas.getContext('2d')!;
+  }
+
+  onRender(callback: () => void): () => void {
+    this.#renderHandler = callback;
+    return () => (this.#renderHandler = () => {});
   }
 
   setData(data: GraphData): void {
@@ -80,6 +86,7 @@ export default class Graph {
       return;
     }
     drawGraph(this.#context, this.#data, this.#layoutPos);
+    this.#renderHandler();
   }
 
   pan(event: MouseEvent): void {

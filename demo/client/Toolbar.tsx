@@ -4,6 +4,16 @@ import Graph, { LayoutType } from '../../lib/Graph';
 import SettingsContext from './SettingsContext';
 import SettingsMenu from './SettingsMenu';
 
+const fpsStyle = {
+  backgroundColor: 'rgba(238, 238, 238, 0.5)',
+  borderRadius: '3px',
+  left: '10px',
+  padding: '5px',
+  pointerEvents: 'none',
+  position: 'fixed',
+  top: '10px',
+};
+
 const toolbarContainerStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -26,13 +36,22 @@ type Props = {
 };
 
 export default function Toolbar({ graph }: Props): JSX.Element {
-  const [settings] = useContext(SettingsContext);
   const [layoutType, setLayoutType] = useState(graph.getLayoutType());
   const [showSettings, setShowSettings] = useState(false);
+  const [fps, setFps] = useState(0);
 
   useEffect(() => {
     graph.setLayout(layoutType);
   }, [layoutType]);
+
+  useEffect(() => {
+    let time = Date.now();
+    return graph.onRender(() => {
+      const oldTime = time;
+      time = Date.now();
+      setFps(Math.round(1000 / (time - oldTime)));
+    });
+  }, [graph]);
 
   const onChangeLayoutType = (event: Event) => {
     const element = event.target as HTMLSelectElement;
@@ -42,6 +61,7 @@ export default function Toolbar({ graph }: Props): JSX.Element {
 
   return (
     <>
+      <div style={fpsStyle}>{fps} FPS</div>
       <div style={toolbarContainerStyle}>
         <div style={toolbarStyle}>
           <select onChange={onChangeLayoutType} value={layoutType}>
