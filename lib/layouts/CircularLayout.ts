@@ -30,7 +30,13 @@ export default class CircularLayout implements GraphLayout {
       edgeMap.add(target, source);
     }
 
-    nodes.sort((a, b) => edgeMap.sizeAt(b) - edgeMap.sizeAt(a));
+    const nodeIndices = new Map<string, number>();
+    for (let i = 0; i < nodes.length; i++) {
+      nodeIndices.set(nodes[i], i);
+    }
+
+    const sorted = [...nodes];
+    sorted.sort((a, b) => edgeMap.sizeAt(b) - edgeMap.sizeAt(a));
 
     const xAxis = new Float64Array(nodes.length);
     const yAxis = new Float64Array(nodes.length);
@@ -42,11 +48,12 @@ export default class CircularLayout implements GraphLayout {
     const dsin = Math.sin(dTheta) - Math.sin(0);
     const radius = Math.sqrt(minDistance ** 2 / (dcos ** 2 + dsin ** 2));
 
-    for (let i = 0; i < nodes.length; i++) {
+    for (let i = 0; i < sorted.length; i++) {
       if (lockedNodes.has(i)) continue;
       const theta = i * dTheta;
-      xAxis[i] = radius * Math.cos(theta);
-      yAxis[i] = radius * Math.sin(theta);
+      const j = nodeIndices.get(sorted[i])!;
+      xAxis[j] = radius * Math.cos(theta);
+      yAxis[j] = radius * Math.sin(theta);
     }
     return { xAxis, yAxis };
   }
