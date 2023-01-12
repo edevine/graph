@@ -41,11 +41,15 @@ export default class ForceDirectedLayout implements GraphLayout {
       for (let j = i + 1; j < nodes.length; j++) {
         let dx = xAxis[j] - xAxis[i];
         let dy = yAxis[j] - yAxis[i];
-        if (dx === 0) dx = Math.random();
-        if (dy === 0) dy = Math.random();
+        if (dx === 0 && dy === 0) {
+          dx = Math.random();
+          dy = Math.random();
+        }
+        const d = (dx ** 2 + dy ** 2) ** 0.5;
 
-        const forceX = (dx / dx ** 2) * FORCE;
-        const forceY = (dy / dy ** 2) * FORCE;
+        const force = (d / d ** 2) * FORCE;
+        const forceX = (dx / d) * force;
+        const forceY = (dy / d) * force;
 
         xForces[i] -= forceX;
         yForces[i] -= forceY;
