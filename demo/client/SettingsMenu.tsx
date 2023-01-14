@@ -1,11 +1,12 @@
 import { JSX } from 'preact';
-import Graph, { LayoutType } from '../../lib/Graph';
+import Graph from '../../lib/Graph';
 import {
   Settings,
   setForceDirectedForce,
   setForceDirectedGravity,
   setForceDirectedVelocity,
   setCircularMinDistance,
+  LayoutType,
 } from '../../lib/Settings';
 import SettingsContext from './SettingsContext';
 import { useContext, useEffect } from 'preact/hooks';

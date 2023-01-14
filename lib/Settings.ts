@@ -1,17 +1,21 @@
+export type LayoutType = 'circular' | 'force-directed' | 'none';
+
 export type Settings = {
-  layouts: {
-    circular: {
-      minDistance: number;
-    };
-    forceDirected: {
-      gravity: number;
-      force: number;
-      velocity: number;
-    };
+  layouts: LayoutSettings;
+};
+
+export type LayoutSettings = {
+  circular: {
+    minDistance: number;
+  };
+  forceDirected: {
+    gravity: number;
+    force: number;
+    velocity: number;
   };
 };
 
-export const defaultSettings = {
+export const defaultSettings: Settings = {
   layouts: {
     circular: {
       minDistance: 40,

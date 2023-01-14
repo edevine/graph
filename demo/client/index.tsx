@@ -15,7 +15,7 @@ const canvasStyle = {
 function App(): JSX.Element {
   const [graph, setGraph] = useState<Graph | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const graphData = useMemo(() => createGraphData(20, 1, 1), []);
+  const graphData = useMemo(() => createGraphData(1000, 1, 1), []);
 
   useEffect(() => {
     if (canvas != null) {

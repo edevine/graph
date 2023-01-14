@@ -1,26 +1,25 @@
+import type { Settings, LayoutType } from './Settings';
+import type { LayoutWorker } from './workers/LayoutWorker';
 import drawGraph from './render/drawGraph';
 import { GraphData } from './util/createGraphData';
-import { GraphLayout, Layout } from './layouts/Layout';
-import CircularLayout from './layouts/CircularLayout';
-import ForceDirectedLayout from './layouts/ForceDirectedLayout';
-import NoLayout from './layouts/NoLayout';
-import { Settings, defaultSettings } from './Settings';
-
-export type LayoutType = 'circular' | 'force-directed' | 'none';
+import { Layout } from './layouts/Layout';
 
 const NODE_RADIUS = 10;
 const ZOOM_FACTOR = 1.2;
 const LEFT_MOUSE_BUTTON = 0;
 
+declare var Worker: {
+  new (scriptURL: 'LayoutWorker.js'): LayoutWorker;
+};
+
 export default class Graph {
+  #layoutWorker = new Worker('LayoutWorker.js');
   #canvas: HTMLCanvasElement;
   #context: CanvasRenderingContext2D;
   #layoutType: LayoutType = 'none';
   #layoutPos: Layout | null = null;
   #data: GraphData = { nodes: [], edges: [] };
-  #layoutImpl: GraphLayout = new NoLayout();
   #lockedNodes = new Set<number>();
-  #settings = defaultSettings;
   #renderHandler: () => void = () => {};
 
   constructor(canvas: HTMLCanvasElement) {
@@ -35,50 +34,24 @@ export default class Graph {
 
   setData(data: GraphData): void {
     this.#data = data;
+    this.#layoutWorker.postMessage(['setData', data]);
   }
 
   setLayout(layoutType: LayoutType): void {
-    if (layoutType !== this.#layoutType) {
-      this.#layoutType = layoutType;
-      switch (layoutType) {
-        case 'circular':
-          this.#layoutImpl = new CircularLayout(this.#settings.layouts.circular, this.#data);
-          break;
-        case 'force-directed':
-          this.#layoutImpl = new ForceDirectedLayout(
-            this.#settings.layouts.forceDirected,
-            this.#data,
-          );
-          break;
-        case 'none':
-          this.#layoutImpl = new NoLayout();
-          break;
-      }
-    }
+    this.#layoutType = layoutType;
+    this.#layoutWorker.postMessage(['setLayout', layoutType]);
   }
 
   setSettings(settings: Settings): void {
-    this.#settings = settings;
-    const layout = this.#layoutImpl;
-    if (layout instanceof CircularLayout) {
-      layout.setSettings(settings.layouts.circular);
-    } else if (layout instanceof ForceDirectedLayout) {
-      layout.setSettings(settings.layouts.forceDirected);
-    }
+    this.#layoutWorker.postMessage(['setSettings', settings.layouts]);
   }
 
   getLayoutType(): LayoutType {
     return this.#layoutType;
   }
 
-  layout(): void {
-    if (this.#layoutPos == null) {
-      this.#layoutPos = {
-        xAxis: new Float64Array(this.#data.nodes.length),
-        yAxis: new Float64Array(this.#data.nodes.length),
-      };
-    }
-    this.#layoutPos = this.#layoutImpl.layout(this.#layoutPos, this.#lockedNodes);
+  runLayout(): void {
+    this.#layoutWorker.postMessage(['runLayout', this.#lockedNodes]);
   }
 
   draw(): void {
@@ -132,6 +105,11 @@ export default class Graph {
     return null;
   }
 
+  #setLayout(layout: Layout): void {
+    this.#layoutPos = layout;
+    this.runLayout();
+  }
+
   init(): () => void {
     const canvas = this.#canvas;
     let renderHandle = 0;
@@ -139,7 +117,6 @@ export default class Graph {
     let draggedNode: number | null = null;
 
     const renderCallback = () => {
-      this.layout();
       this.draw();
       renderHandle = requestAnimationFrame(renderCallback);
     };
@@ -176,6 +153,9 @@ export default class Graph {
     canvas.addEventListener('mousedown', onMouseDown);
     canvas.addEventListener('mousemove', onMouseMove);
     canvas.addEventListener('mouseup', onMouseUp);
+    this.#layoutWorker.onmessage = (event) => this.#setLayout(event.data);
+
+    this.runLayout();
 
     return () => {
       cancelAnimationFrame(renderHandle);
@@ -183,6 +163,8 @@ export default class Graph {
       canvas.removeEventListener('mousemove', onMouseDown);
       canvas.removeEventListener('mousemove', onMouseMove);
       canvas.removeEventListener('mouseup', onMouseUp);
+      this.#layoutWorker.onmessage = null;
+      this.#layoutWorker.terminate();
     };
   }
 

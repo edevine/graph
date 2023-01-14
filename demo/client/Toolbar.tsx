@@ -1,7 +1,7 @@
 import { JSX } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
-import Graph, { LayoutType } from '../../lib/Graph';
-import SettingsContext from './SettingsContext';
+import { useEffect, useState } from 'preact/hooks';
+import Graph from '../../lib/Graph';
+import { LayoutType } from '../../lib/Settings';
 import SettingsMenu from './SettingsMenu';
 
 const fpsStyle = {
