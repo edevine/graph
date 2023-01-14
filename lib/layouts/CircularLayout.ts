@@ -8,6 +8,9 @@ export type CircularLayoutSettings = {
 
 export default class CircularLayout implements GraphLayout {
   #initialized = false;
+  #startTime = 0;
+  #startLayout: Layout | null = null;
+  #finalLayout: Layout | null = null;
   #settings: CircularLayoutSettings;
   #data: GraphData;
 
@@ -20,7 +23,16 @@ export default class CircularLayout implements GraphLayout {
     if (this.#initialized) {
       return previousLayout;
     }
-    this.#initialized = true;
+    if (this.#startTime === 0) {
+      this.#startTime = Date.now();
+    }
+    if (this.#finalLayout != null) {
+      return this.animate();
+    }
+    this.#startLayout = {
+      xAxis: previousLayout.xAxis.slice(),
+      yAxis: previousLayout.yAxis.slice(),
+    };
 
     const { minDistance } = this.#settings;
     const { nodes, edges } = this.#data;
@@ -55,6 +67,28 @@ export default class CircularLayout implements GraphLayout {
       xAxis[j] = radius * Math.cos(theta);
       yAxis[j] = radius * Math.sin(theta);
     }
+    this.#finalLayout = { xAxis, yAxis };
+    return previousLayout;
+  }
+
+  animate(): Layout {
+    const time = Date.now() - this.#startTime;
+    if (time >= 500) {
+      this.#initialized = true;
+      return this.#finalLayout!;
+    }
+    const final = this.#finalLayout!;
+    const start = this.#startLayout!;
+    const length = final.xAxis.length;
+    const xAxis = new Float64Array(length);
+    const yAxis = new Float64Array(length);
+    const progress = time / 1000;
+    for (let i = 0; i < length; i++) {
+      xAxis[i] = start.xAxis[i] + (final.xAxis[i] - start.xAxis[i]) * progress;
+      yAxis[i] = start.yAxis[i] + (final.yAxis[i] - start.yAxis[i]) * progress;
+    }
+    this.#finalLayout = null;
+    this.#startLayout = null;
     return { xAxis, yAxis };
   }
 
