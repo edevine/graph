@@ -3,6 +3,7 @@ import type { LayoutWorker } from './workers/LayoutWorker';
 import drawGraph from './render/drawGraph';
 import { GraphData } from './util/createGraphData';
 import { Layout } from './layouts/Layout';
+import applyLocks from './util/applyLocks';
 
 const NODE_RADIUS = 10;
 const ZOOM_FACTOR = 1.2;
@@ -19,7 +20,7 @@ export default class Graph {
   #layoutType: LayoutType = 'none';
   #layoutPos: Layout | null = null;
   #data: GraphData = { nodes: [], edges: [] };
-  #lockedNodes = new Set<number>();
+  #locked = new Map<number, [number, number]>();
   #renderHandler: () => void = () => {};
 
   constructor(canvas: HTMLCanvasElement) {
@@ -51,7 +52,7 @@ export default class Graph {
   }
 
   runLayout(): void {
-    this.#layoutWorker.postMessage(['runLayout', this.#lockedNodes]);
+    this.#layoutWorker.postMessage(['runLayout', this.#locked]);
   }
 
   draw(): void {
@@ -72,14 +73,20 @@ export default class Graph {
     const delta = this.movementToDelta(event);
     this.#layoutPos.xAxis[i] += delta.x;
     this.#layoutPos.yAxis[i] += delta.y;
+    const locked = this.#locked.get(i);
+    if (locked != null) {
+      locked[0] = this.#layoutPos.xAxis[i];
+      locked[1] = this.#layoutPos.yAxis[i];
+    }
   }
 
   lockNode(i: number): void {
-    this.#lockedNodes.add(i);
+    if (this.#layoutPos == null) return;
+    this.#locked.set(i, [this.#layoutPos.xAxis[i], this.#layoutPos.yAxis[i]]);
   }
 
   unlockNode(i: number): void {
-    this.#lockedNodes.delete(i);
+    this.#locked.delete(i);
   }
 
   zoomAt(event: WheelEvent): void {
@@ -106,6 +113,7 @@ export default class Graph {
   }
 
   #setLayout(layout: Layout): void {
+    applyLocks(layout, this.#locked);
     this.#layoutPos = layout;
     this.runLayout();
   }

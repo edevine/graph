@@ -5,6 +5,7 @@ import { defaultSettings } from '../Settings';
 import { GraphData } from '../util/createGraphData';
 import ForceDirectedLayout from '../layouts/ForceDirectedLayout';
 import CircularLayout from '../layouts/CircularLayout';
+import applyLocks from '../util/applyLocks';
 
 export interface LayoutWorker extends Worker {
   postMessage(message: LayoutWorkerRequest): void;
@@ -14,7 +15,7 @@ export interface LayoutWorker extends Worker {
 export type LayoutWorkerRequest =
   | ['setData', GraphData]
   | ['setLayout', LayoutType]
-  | ['runLayout', Set<number>]
+  | ['runLayout', Map<number, [number, number]>]
   | ['setSettings', LayoutSettings];
 
 class LayoutWorkerImpl {
@@ -79,8 +80,9 @@ class LayoutWorkerImpl {
     }
   }
 
-  runLayout(lockedNodes: Set<number>): void {
-    this.#prevLayout = this.#layoutImpl.layout(this.#prevLayout, lockedNodes);
+  runLayout(locked: Map<number, [number, number]>): void {
+    applyLocks(this.#prevLayout, locked);
+    this.#prevLayout = this.#layoutImpl.layout(this.#prevLayout);
     self.postMessage(this.#prevLayout);
   }
 }

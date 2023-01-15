@@ -16,7 +16,7 @@ export default class ForceDirectedLayout implements GraphLayout {
     this.#data = data;
   }
 
-  layout({ xAxis, yAxis }: Layout, lockedNodes: Set<number>): Layout {
+  layout({ xAxis, yAxis }: Layout): Layout {
     const GRAVITY = this.#settings.gravity * -1;
     const FORCE = this.#settings.force;
     const VELOCITY = this.#settings.velocity;
@@ -71,7 +71,6 @@ export default class ForceDirectedLayout implements GraphLayout {
     }
 
     for (let i = 0; i < xForces.length; i++) {
-      if (lockedNodes.has(i)) continue;
       const x = xForces[i];
       const y = yForces[i];
       if (x > 0.5 || x < -0.5) xAxis[i] += x * VELOCITY;

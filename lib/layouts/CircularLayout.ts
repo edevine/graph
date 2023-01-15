@@ -19,7 +19,7 @@ export default class CircularLayout implements GraphLayout {
     this.#data = data;
   }
 
-  layout(previousLayout: Layout, lockedNodes: Set<number>): Layout {
+  layout(previousLayout: Layout): Layout {
     if (this.#initialized) {
       return previousLayout;
     }
@@ -61,7 +61,6 @@ export default class CircularLayout implements GraphLayout {
     const radius = Math.sqrt(minDistance ** 2 / (dcos ** 2 + dsin ** 2));
 
     for (let i = 0; i < sorted.length; i++) {
-      if (lockedNodes.has(i)) continue;
       const theta = i * dTheta;
       const j = nodeIndices.get(sorted[i])!;
       xAxis[j] = radius * Math.cos(theta);
