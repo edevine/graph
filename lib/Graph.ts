@@ -22,6 +22,7 @@ export default class Graph {
   #data: GraphData = { nodes: [], edges: [] };
   #locked = new Map<number, [number, number]>();
   #renderHandler: () => void = () => {};
+  #completedRender = true;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#canvas = canvas;
@@ -52,6 +53,8 @@ export default class Graph {
   }
 
   runLayout(): void {
+    if (!this.#completedRender) return;
+    this.#completedRender = false;
     this.#layoutWorker.postMessage(['runLayout', this.#locked]);
   }
 
@@ -59,7 +62,9 @@ export default class Graph {
     if (this.#layoutPos == null) {
       return;
     }
+    this.runLayout();
     drawGraph(this.#context, this.#data, this.#layoutPos);
+    this.#completedRender = true;
     this.#renderHandler();
   }
 
