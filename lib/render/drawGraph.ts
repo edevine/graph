@@ -4,7 +4,7 @@ import { GraphData } from '../util/createGraphData';
 const NODE_RADIUS = 10;
 
 export default function drawGraph(
-  context: CanvasRenderingContext2D,
+  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   { nodes, edges }: GraphData,
   { xAxis, yAxis }: Layout,
 ): void {

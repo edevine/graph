@@ -4,7 +4,7 @@
   "description": "A graph library",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --project ./demo/server/ & esbuild demo/client/index.tsx --bundle --outfile=\"demo/static/index.js\" & esbuild lib/workers/LayoutWorker.ts --bundle --outfile=\"demo/static/LayoutWorker.js\"",
+    "build": "tsc --project ./demo/server/ & esbuild demo/client/index.tsx --bundle --outfile=\"demo/static/index.js\" & esbuild lib/workers/LayoutWorker.ts --bundle --outfile=\"demo/static/LayoutWorker.js\" & esbuild lib/workers/CanvasWorker.ts --bundle --outfile=\"demo/static/CanvasWorker.js\"",
     "start": "node ./demo/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
