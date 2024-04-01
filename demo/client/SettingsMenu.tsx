@@ -10,6 +10,7 @@ import {
 } from '../../lib/Settings';
 import SettingsContext from './SettingsContext';
 import { useContext, useEffect } from 'preact/hooks';
+import { memo } from 'preact/compat';
 
 const modalStyle = {
   backgroundColor: 'rgba(238, 238, 238, 0.5)',
@@ -31,7 +32,7 @@ type Props = {
   layoutType: LayoutType;
 };
 
-export default function Settings({ graph, layoutType }: Props): JSX.Element | null {
+function Settings({ graph, layoutType }: Props): JSX.Element | null {
   const [settings, setSettings] = useContext(SettingsContext);
 
   useEffect(() => {
@@ -112,8 +113,8 @@ export default function Settings({ graph, layoutType }: Props): JSX.Element | nu
           <input
             type="number"
             max="1"
-            min="0.01"
-            step="0.01"
+            min="0.001"
+            step="0.001"
             value={settings.layouts.forceDirected.velocity}
             onChange={onChangeVelocity}
           />
@@ -124,3 +125,5 @@ export default function Settings({ graph, layoutType }: Props): JSX.Element | nu
 
   return null;
 }
+
+export default memo(Settings);
