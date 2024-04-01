@@ -23,7 +23,7 @@ export const defaultSettings: Settings = {
     forceDirected: {
       gravity: 0.02,
       force: 100,
-      velocity: 0.1,
+      velocity: 0.002,
     },
   },
 };

@@ -1,9 +1,10 @@
+import type { GraphData } from '../../lib/util/createGraphData';
 import { JSX, render } from 'preact';
-import { useEffect, useMemo, useState } from 'preact/hooks';
-import createGraphData from '../../lib/util/createGraphData';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import Graph from '../../lib/Graph';
 import Toolbar from './Toolbar';
 import SettingsProvider from './SettingsProvider';
+import parseEdgeList from '../../lib/util/parseEdgeList';
 
 const canvasStyle = {
   display: 'block',
@@ -15,17 +16,26 @@ const canvasStyle = {
 function App(): JSX.Element {
   const [graph, setGraph] = useState<Graph | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
-  const graphData = useMemo(() => createGraphData(1000, 1, 1), []);
+  const [graphData, setGraphData] = useState<GraphData | null>(null);
+  const fetched = useRef(false);
+  const init = useRef(false);
 
+  if (!fetched.current) {
+    fetched.current = true;
+    fetch('data/facebook_combined.txt')
+      .then((response) => response.text())
+      .then((text) => setGraphData(parseEdgeList(text)));
+  }
   useEffect(() => {
-    if (canvas != null) {
+    if (canvas && graphData && !init.current) {
+      init.current = true;
       const graph = new Graph(canvas);
       graph.setData(graphData);
       graph.setLayout('force-directed');
       setGraph(graph);
       return graph.init();
     }
-  }, [canvas]);
+  }, [canvas, graphData]);
 
   const canvasSize = useMemo(
     () => ({
