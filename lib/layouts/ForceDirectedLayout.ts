@@ -4,7 +4,6 @@ import { GraphLayout, Layout } from './Layout';
 type ForceDirectedLayoutSettings = {
   gravity: number;
   force: number;
-  velocity: number;
 };
 
 export default class ForceDirectedLayout implements GraphLayout {
@@ -19,7 +18,6 @@ export default class ForceDirectedLayout implements GraphLayout {
   layout({ xAxis, yAxis }: Layout): Layout {
     const GRAVITY = this.#settings.gravity * -1;
     const FORCE = this.#settings.force;
-    const VELOCITY = this.#settings.velocity;
     const { nodes, edges } = this.#data;
     const nodeIndices = new Map();
     for (let i = 0; i < nodes.length; i++) {
@@ -28,6 +26,7 @@ export default class ForceDirectedLayout implements GraphLayout {
 
     const xForces = new Float64Array(nodes.length);
     const yForces = new Float64Array(nodes.length);
+    const connectivity = new Int16Array(nodes.length);
 
     // apply force towards center
     for (let i = 0; i < nodes.length; i++) {
@@ -42,8 +41,8 @@ export default class ForceDirectedLayout implements GraphLayout {
         let dx = xAxis[j] - xAxis[i];
         let dy = yAxis[j] - yAxis[i];
         if (dx === 0 && dy === 0) {
-          dx = Math.random();
-          dy = Math.random();
+          dx = Math.random() - 0.5;
+          dy = Math.random() - 0.5;
         }
         const d = (dx ** 2 + dy ** 2) ** 0.5;
 
@@ -68,13 +67,21 @@ export default class ForceDirectedLayout implements GraphLayout {
       yForces[s] -= dy;
       xForces[t] += dx;
       yForces[t] += dy;
+
+      // count the connectivity of each node
+      connectivity[s]++;
+      connectivity[t]++;
     }
 
-    for (let i = 0; i < xForces.length; i++) {
-      const x = xForces[i];
-      const y = yForces[i];
-      if (x > 0.5 || x < -0.5) xAxis[i] += x * VELOCITY;
-      if (y > 0.5 || y < -0.5) yAxis[i] += y * VELOCITY;
+    for (let i = 0; i < nodes.length; i++) {
+      // velocity must be inversely proportional to node connectivity
+      // to prevent nodes flying off
+      const conn = connectivity[i];
+      const velocity = 1 - conn / (conn + 1);
+      const x = xForces[i] * velocity;
+      const y = yForces[i] * velocity;
+      if (x > 0.5 || x < -0.5) xAxis[i] += x;
+      if (y > 0.5 || y < -0.5) yAxis[i] += y;
     }
 
     return { xAxis, yAxis };

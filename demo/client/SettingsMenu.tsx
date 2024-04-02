@@ -4,7 +4,6 @@ import {
   Settings,
   setForceDirectedForce,
   setForceDirectedGravity,
-  setForceDirectedVelocity,
   setCircularMinDistance,
   LayoutType,
 } from '../../lib/Settings';
@@ -60,13 +59,6 @@ function Settings({ graph, layoutType }: Props): JSX.Element | null {
     });
   };
 
-  const onChangeVelocity = (event: Event) => {
-    setSettings((settings) => {
-      const element = event.target as HTMLSelectElement;
-      return setForceDirectedVelocity(settings, Number(element.value));
-    });
-  };
-
   if (layoutType === 'circular') {
     return (
       <div style={modalStyle}>
@@ -106,17 +98,6 @@ function Settings({ graph, layoutType }: Props): JSX.Element | null {
             step="1"
             value={settings.layouts.forceDirected.force}
             onChange={onChangeForce}
-          />
-        </label>
-        <label style={labelStyle}>
-          Velocity
-          <input
-            type="number"
-            max="1"
-            min="0.001"
-            step="0.001"
-            value={settings.layouts.forceDirected.velocity}
-            onChange={onChangeVelocity}
           />
         </label>
       </div>

@@ -11,7 +11,6 @@ export type LayoutSettings = {
   forceDirected: {
     gravity: number;
     force: number;
-    velocity: number;
   };
 };
 
@@ -23,7 +22,6 @@ export const defaultSettings: Settings = {
     forceDirected: {
       gravity: 0.02,
       force: 100,
-      velocity: 0.002,
     },
   },
 };
@@ -62,19 +60,6 @@ export function setForceDirectedForce(settings: Settings, force: number): Settin
       forceDirected: {
         ...settings.layouts.forceDirected,
         force,
-      },
-    },
-  };
-}
-
-export function setForceDirectedVelocity(settings: Settings, velocity: number): Settings {
-  return {
-    ...settings,
-    layouts: {
-      ...settings.layouts,
-      forceDirected: {
-        ...settings.layouts.forceDirected,
-        velocity,
       },
     },
   };
