@@ -41,10 +41,6 @@ export default function Toolbar({ graph }: Props): JSX.Element {
   const [fps, setFps] = useState(0);
 
   useEffect(() => {
-    graph.setLayout(layoutType);
-  }, [layoutType]);
-
-  useEffect(() => {
     let time = Date.now();
     return graph.onRender(() => {
       const oldTime = time;
@@ -56,7 +52,7 @@ export default function Toolbar({ graph }: Props): JSX.Element {
   const onChangeLayoutType = (event: Event) => {
     const element = event.target as HTMLSelectElement;
     setLayoutType(element.value as LayoutType);
-    graph.setLayout(element.value as LayoutType);
+    graph.setLayoutType(element.value as LayoutType);
   };
 
   return (

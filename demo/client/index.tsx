@@ -31,7 +31,7 @@ function App(): JSX.Element {
       init.current = true;
       const graph = new Graph(canvas);
       graph.setData(graphData);
-      graph.setLayout('force-directed');
+      graph.setLayoutType('force-directed');
       setGraph(graph);
       return graph.init();
     }

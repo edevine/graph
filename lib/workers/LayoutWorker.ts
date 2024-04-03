@@ -14,7 +14,7 @@ export interface LayoutWorker extends Worker {
 
 export type LayoutWorkerRequest =
   | ['setData', GraphData]
-  | ['setLayout', LayoutType]
+  | ['setLayoutType', LayoutType]
   | ['runLayout', Map<number, [number, number]>]
   | ['setSettings', LayoutSettings];
 
@@ -33,8 +33,8 @@ class LayoutWorkerImpl {
       case 'setData':
         this.setData(msg[1]);
         break;
-      case 'setLayout':
-        this.setLayout(msg[1]);
+      case 'setLayoutType':
+        this.setLayoutType(msg[1]);
         break;
       case 'runLayout':
         this.runLayout(msg[1]);
@@ -51,10 +51,10 @@ class LayoutWorkerImpl {
       xAxis: new Float64Array(data.nodes.length),
       yAxis: new Float64Array(data.nodes.length),
     };
-    this.setLayout(this.#layoutType, true);
+    this.setLayoutType(this.#layoutType, true);
   }
 
-  setLayout(layoutType: LayoutType, force: boolean = false): void {
+  setLayoutType(layoutType: LayoutType, force: boolean = false): void {
     if (force || this.#layoutType !== layoutType) {
       this.#layoutType = layoutType;
       switch (layoutType) {

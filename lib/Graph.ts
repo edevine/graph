@@ -33,9 +33,9 @@ export default class Graph {
     this.#canvasWorker.postMessage(['data', data]);
   }
 
-  setLayout(layoutType: LayoutType): void {
+  setLayoutType(layoutType: LayoutType): void {
     this.#layoutType = layoutType;
-    this.#layoutWorker.postMessage(['setLayout', layoutType]);
+    this.#layoutWorker.postMessage(['setLayoutType', layoutType]);
   }
 
   setSettings(settings: Settings): void {
