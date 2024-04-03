@@ -9,24 +9,39 @@ type ForceDirectedLayoutSettings = {
 export default class ForceDirectedLayout implements GraphLayout {
   #data: GraphData;
   #settings: ForceDirectedLayoutSettings;
+  #nodeIndices: Map<string, number>;
+  #connectivity: Int16Array;
 
   constructor(settings: ForceDirectedLayoutSettings, data: GraphData) {
     this.#settings = settings;
     this.#data = data;
+    const { nodes, edges } = data;
+
+    const nodeIndices = new Map<string, number>();
+    for (let i = 0; i < nodes.length; i++) {
+      nodeIndices.set(nodes[i], i);
+    }
+
+    const connectivity = new Int16Array(nodes.length);
+    for (const edge of edges) {
+      const s = nodeIndices.get(edge[0])!;
+      const t = nodeIndices.get(edge[1])!;
+      connectivity[s]++;
+      connectivity[t]++;
+    }
+
+    this.#nodeIndices = nodeIndices;
+    this.#connectivity = connectivity;
   }
 
   layout({ xAxis, yAxis }: Layout): Layout {
     const GRAVITY = this.#settings.gravity * -1;
     const FORCE = this.#settings.force;
     const { nodes, edges } = this.#data;
-    const nodeIndices = new Map();
-    for (let i = 0; i < nodes.length; i++) {
-      nodeIndices.set(nodes[i], i);
-    }
-
+    const nodeIndices = this.#nodeIndices;
     const xForces = new Float64Array(nodes.length);
     const yForces = new Float64Array(nodes.length);
-    const connectivity = new Int16Array(nodes.length);
+    const connectivity = this.#connectivity;
 
     // apply force towards center
     for (let i = 0; i < nodes.length; i++) {
@@ -59,18 +74,14 @@ export default class ForceDirectedLayout implements GraphLayout {
 
     // apply attractive forces from edges
     for (const edge of edges) {
-      const s = nodeIndices.get(edge[0]);
-      const t = nodeIndices.get(edge[1]);
+      const s = nodeIndices.get(edge[0])!;
+      const t = nodeIndices.get(edge[1])!;
       const dx = (xAxis[s] - xAxis[t]) / 2;
       const dy = (yAxis[s] - yAxis[t]) / 2;
       xForces[s] -= dx;
       yForces[s] -= dy;
       xForces[t] += dx;
       yForces[t] += dy;
-
-      // count the connectivity of each node
-      connectivity[s]++;
-      connectivity[t]++;
     }
 
     for (let i = 0; i < nodes.length; i++) {
