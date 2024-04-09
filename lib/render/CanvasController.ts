@@ -16,6 +16,7 @@ export default class CanvasController {
   #mouseDown = false;
   #cb: Callbacks;
   #needsDraw = true;
+  #hasNewLayout = false;
 
   constructor(cb: Callbacks) {
     const canvas = new OffscreenCanvas(300, 150);
@@ -27,7 +28,10 @@ export default class CanvasController {
     if (!this.#needsDraw) return;
     this.#needsDraw = false;
     drawGraph(this.#context, this.#data, this.#layout);
-    this.#cb.onrender();
+    if (this.#hasNewLayout) {
+      this.#hasNewLayout = false;
+      this.#cb.onrender();
+    }
   }
 
   setContext(context: OffscreenCanvasRenderingContext2D): void {
@@ -42,6 +46,7 @@ export default class CanvasController {
 
   setLayout(layout: Layout): void {
     this.#needsDraw = true;
+    this.#hasNewLayout = true;
     this.#layout = layout;
   }
 
