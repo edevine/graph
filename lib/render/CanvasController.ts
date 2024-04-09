@@ -15,6 +15,7 @@ export default class CanvasController {
   #locked = new Map<number, [number, number]>();
   #mouseDown = false;
   #cb: Callbacks;
+  #needsDraw = true;
 
   constructor(cb: Callbacks) {
     const canvas = new OffscreenCanvas(300, 150);
@@ -23,19 +24,24 @@ export default class CanvasController {
   }
 
   draw(): void {
+    if (!this.#needsDraw) return;
+    this.#needsDraw = false;
     drawGraph(this.#context, this.#data, this.#layout);
     this.#cb.onrender();
   }
 
   setContext(context: OffscreenCanvasRenderingContext2D): void {
+    this.#needsDraw = true;
     this.#context = context;
   }
 
   setData(data: GraphData): void {
+    this.#needsDraw = true;
     this.#data = data;
   }
 
   setLayout(layout: Layout): void {
+    this.#needsDraw = true;
     this.#layout = layout;
   }
 
@@ -43,6 +49,7 @@ export default class CanvasController {
     this.#mouseDown = true;
     const i = this.#getNodeIndexAt(x, y);
     if (!i) return;
+    this.#needsDraw = true;
     this.#draggedNode = i;
     this.#locked.set(i, [this.#layout.xAxis[i], this.#layout.yAxis[i]]);
     this.#cb.onlock(this.#locked);
@@ -50,6 +57,7 @@ export default class CanvasController {
 
   mouseMove(x: number, y: number): void {
     if (!this.#mouseDown) return;
+    this.#needsDraw = true;
     const d = this.scalePoint(x, y);
     if (this.#draggedNode) {
       const i = this.#draggedNode;
@@ -65,12 +73,14 @@ export default class CanvasController {
   mouseUp(): void {
     this.#mouseDown = false;
     if (!this.#draggedNode) return;
+    this.#needsDraw = true;
     this.#locked.delete(this.#draggedNode);
     this.#cb.onlock(this.#locked);
     this.#draggedNode = null;
   }
 
   zoom(dir: 1 | -1, pt: DOMPoint): void {
+    this.#needsDraw = true;
     const factor = ZOOM_FACTOR ** dir;
     const { x, y } = this.transformPoint(pt);
     this.#context.translate(x, y);

@@ -18,6 +18,7 @@ export default class Graph {
   #locked = new Map<number, [number, number]>();
   #renderHandler: () => void = () => {};
   #completedRender = true;
+  #isPaused = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#canvas = canvas;
@@ -46,8 +47,15 @@ export default class Graph {
     return this.#layoutType;
   }
 
+  pause(isPaused: boolean): void {
+    this.#isPaused = isPaused;
+    if (!isPaused) {
+      this.runLayout();
+    }
+  }
+
   runLayout(): void {
-    if (!this.#completedRender) return;
+    if (!this.#completedRender || this.#isPaused) return;
     this.#completedRender = false;
     this.#layoutWorker.postMessage(['runLayout', this.#locked]);
   }

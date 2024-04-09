@@ -39,6 +39,7 @@ export default function Toolbar({ graph }: Props): JSX.Element {
   const [layoutType, setLayoutType] = useState(graph.getLayoutType());
   const [showSettings, setShowSettings] = useState(false);
   const [fps, setFps] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     let time = Date.now();
@@ -64,6 +65,14 @@ export default function Toolbar({ graph }: Props): JSX.Element {
             <option value="circular">Circular</option>
             <option value="force-directed">Force Directed</option>
           </select>
+          <button
+            onClick={() => {
+              graph.pause(!isPaused);
+              setIsPaused(!isPaused);
+            }}
+          >
+            {isPaused ? 'Play' : 'Pause'}
+          </button>
           <button onClick={() => setShowSettings((value) => !value)}>Settings</button>
         </div>
       </div>
