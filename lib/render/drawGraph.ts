@@ -6,16 +6,11 @@ const NODE_RADIUS = 10;
 export default function drawGraph(
   context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   { nodes, edges }: GraphData,
+  nodeIndices: Map<string, number>,
   [xAxis, yAxis]: Layout,
   lasso: DOMRect | null,
   selectedNodes: Set<number>,
 ): void {
-  // build Map { ID -> index } to look up coordinates in constant time
-  const nodeIndices = new Map();
-  for (let i = 0; i < nodes.length; i++) {
-    nodeIndices.set(nodes[i], i);
-  }
-
   context.save();
   context.resetTransform();
   context.fillStyle = 'white';
@@ -25,8 +20,8 @@ export default function drawGraph(
 
   for (const [sourceID, targetID] of edges) {
     context.beginPath();
-    const sourceIndex = nodeIndices.get(sourceID);
-    const targetIndex = nodeIndices.get(targetID);
+    const sourceIndex = nodeIndices.get(sourceID)!;
+    const targetIndex = nodeIndices.get(targetID)!;
     context.moveTo(xAxis[sourceIndex], yAxis[sourceIndex]);
     context.lineTo(xAxis[targetIndex], yAxis[targetIndex]);
     context.stroke();

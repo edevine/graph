@@ -11,6 +11,7 @@ export default class CanvasController {
   #context: OffscreenCanvasRenderingContext2D;
   #layout: Layout = [new Float64Array(), new Float64Array()];
   #data: GraphData = { nodes: [], edges: [] };
+  #nodeIndices = new Map<string, number>();
   #dragging = false;
   #cb: Callbacks;
   #needsDraw = true;
@@ -28,7 +29,14 @@ export default class CanvasController {
   draw(): void {
     if (!this.#needsDraw) return;
     this.#needsDraw = false;
-    drawGraph(this.#context, this.#data, this.#layout, this.#lasso, this.#selectedNodes);
+    drawGraph(
+      this.#context,
+      this.#data,
+      this.#nodeIndices,
+      this.#layout,
+      this.#lasso,
+      this.#selectedNodes,
+    );
     if (this.#hasNewLayout) {
       this.#hasNewLayout = false;
       this.#cb.onrender();
@@ -43,6 +51,12 @@ export default class CanvasController {
   setData(data: GraphData): void {
     this.#needsDraw = true;
     this.#data = data;
+    const nodes = data.nodes;
+    this.#nodeIndices.clear();
+    // build Map { ID -> index } to look up coordinates in constant time
+    for (let i = 0; i < nodes.length; i++) {
+      this.#nodeIndices.set(nodes[i], i);
+    }
   }
 
   setLayout(layout: Layout): void {
