@@ -68,7 +68,8 @@ export default class Graph {
 
   #setLayout(layout: Layout): void {
     applyLocks(layout, this.#locked);
-    this.#canvasWorker.postMessage(['layout', layout]);
+    const transfer = [layout[0].buffer, layout[1].buffer];
+    this.#canvasWorker.postMessage(['layout', layout], transfer);
     this.runLayout();
   }
 
