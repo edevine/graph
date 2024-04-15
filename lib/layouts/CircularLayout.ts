@@ -1,18 +1,17 @@
 import type { GraphData } from '../util/createGraphData';
 import MultiMap from '../util/MultiMap';
 import { GraphLayout, Layout } from './Layout';
+import transitionLayout from './transitionLayout';
 
 export type CircularLayoutSettings = {
   minDistance: number;
 };
 
 export default class CircularLayout implements GraphLayout {
-  #finished = false;
-  #startTime = 0;
-  #startLayout: Layout | null = null;
-  #finalLayout: Layout | null = null;
   #settings: CircularLayoutSettings;
   #data: GraphData;
+  #transition: Iterator<Layout, Layout> | null = null;
+  #finished = false;
 
   constructor(settings: CircularLayoutSettings, data: GraphData) {
     this.#settings = settings;
@@ -23,40 +22,21 @@ export default class CircularLayout implements GraphLayout {
     if (this.#finished) {
       return previousLayout;
     }
-    if (this.#startTime === 0) {
-      this.#startTime = Date.now();
+    if (this.#transition != null) {
+      const result = this.#transition.next();
+      if (result.done) {
+        this.#finished = true;
+        this.#transition = null;
+      }
+      return result.value;
     }
-    if (this.#finalLayout != null) {
-      return this.animate();
-    }
-    this.#startLayout = previousLayout;
-    this.#finalLayout = computeCircularLayout(this.#settings, this.#data);
+    const layout = computeCircularLayout(this.#settings, this.#data);
+
+    this.#transition = transitionLayout(previousLayout, layout, 500);
     return previousLayout;
   }
 
-  animate(): Layout {
-    const time = Date.now() - this.#startTime;
-    if (time >= 500) {
-      this.#finished = true;
-      return this.#finalLayout!;
-    }
-    const final = this.#finalLayout!;
-    const start = this.#startLayout!;
-    const length = final[0].length;
-    const xAxis = new Float64Array(length);
-    const yAxis = new Float64Array(length);
-    const progress = time / 1000;
-    for (let i = 0; i < length; i++) {
-      xAxis[i] = start[0][i] + (final[0][i] - start[0][i]) * progress;
-      yAxis[i] = start[1][i] + (final[1][i] - start[1][i]) * progress;
-    }
-    this.#finalLayout = null;
-    this.#startLayout = null;
-    return [xAxis, yAxis];
-  }
-
   setSettings(settings: CircularLayoutSettings): void {
-    this.#finished = false;
     this.#settings = settings;
   }
 }
