@@ -19,10 +19,7 @@ export type LayoutWorkerRequest =
   | ['setSettings', LayoutSettings];
 
 class LayoutWorkerImpl {
-  #prevLayout: Layout = {
-    xAxis: new Float64Array(),
-    yAxis: new Float64Array(),
-  };
+  #prevLayout: Layout = [new Float64Array(), new Float64Array()];
   #layoutType: LayoutType = 'none';
   #layoutImpl: GraphLayout = new NoLayout();
   #settings = defaultSettings.layouts;
@@ -47,10 +44,7 @@ class LayoutWorkerImpl {
 
   setData(data: GraphData): void {
     this.#data = data;
-    this.#prevLayout = {
-      xAxis: new Float64Array(data.nodes.length),
-      yAxis: new Float64Array(data.nodes.length),
-    };
+    this.#prevLayout = [new Float64Array(data.nodes.length), new Float64Array(data.nodes.length)];
     this.setLayoutType(this.#layoutType, true);
   }
 

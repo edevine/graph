@@ -6,7 +6,7 @@ const NODE_RADIUS = 10;
 export default function drawGraph(
   context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   { nodes, edges }: GraphData,
-  { xAxis, yAxis }: Layout,
+  [xAxis, yAxis]: Layout,
 ): void {
   // build Map { ID -> index } to look up coordinates in constant time
   const nodeIndices = new Map();

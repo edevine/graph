@@ -34,7 +34,7 @@ export default class ForceDirectedLayout implements GraphLayout {
     this.#connectivity = connectivity;
   }
 
-  layout({ xAxis, yAxis }: Layout): Layout {
+  layout([xAxis, yAxis]: Layout): Layout {
     const GRAVITY = this.#settings.gravity * -1;
     const FORCE = this.#settings.force;
     const { nodes, edges } = this.#data;
@@ -95,7 +95,7 @@ export default class ForceDirectedLayout implements GraphLayout {
       if (y > 0.5 || y < -0.5) yAxis[i] += y;
     }
 
-    return { xAxis, yAxis };
+    return [xAxis, yAxis];
   }
 
   setSettings(settings: ForceDirectedLayoutSettings): void {

@@ -9,7 +9,7 @@ type Callbacks = { onlock: (locked: Map<number, [number, number]>) => void; onre
 
 export default class CanvasController {
   #context: OffscreenCanvasRenderingContext2D;
-  #layout: Layout = { xAxis: new Float64Array(), yAxis: new Float64Array() };
+  #layout: Layout = [new Float64Array(), new Float64Array()];
   #data: GraphData = { nodes: [], edges: [] };
   #draggedNode: number | null = null;
   #locked = new Map<number, [number, number]>();
@@ -56,7 +56,7 @@ export default class CanvasController {
     if (!i) return;
     this.#needsDraw = true;
     this.#draggedNode = i;
-    this.#locked.set(i, [this.#layout.xAxis[i], this.#layout.yAxis[i]]);
+    this.#locked.set(i, [this.#layout[0][i], this.#layout[0][i]]);
     this.#cb.onlock(this.#locked);
   }
 
@@ -66,9 +66,9 @@ export default class CanvasController {
     const d = this.scalePoint(x, y);
     if (this.#draggedNode) {
       const i = this.#draggedNode;
-      this.#layout.xAxis[i] += d.x;
-      this.#layout.yAxis[i] += d.y;
-      this.#locked.set(i, [this.#layout.xAxis[i], this.#layout.yAxis[i]]);
+      this.#layout[0][i] += d.x;
+      this.#layout[1][i] += d.y;
+      this.#locked.set(i, [this.#layout[0][i], this.#layout[1][i]]);
       this.#cb.onlock(this.#locked);
     } else {
       this.#context.translate(d.x, d.y);
@@ -96,7 +96,7 @@ export default class CanvasController {
   #getNodeIndexAt(x: number, y: number): number | null {
     const context = this.#context;
     const nodes = this.#data.nodes;
-    const { xAxis, yAxis } = this.#layout;
+    const [xAxis, yAxis] = this.#layout;
     for (let i = 0; i < nodes.length; i++) {
       const path = new Path2D();
       path.arc(xAxis[i], yAxis[i], NODE_RADIUS, 0, 360);
