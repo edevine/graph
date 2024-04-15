@@ -7,6 +7,8 @@ export default function drawGraph(
   context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   { nodes, edges }: GraphData,
   [xAxis, yAxis]: Layout,
+  lasso: DOMRect | null,
+  selectedNodes: Set<number>,
 ): void {
   // build Map { ID -> index } to look up coordinates in constant time
   const nodeIndices = new Map();
@@ -32,10 +34,19 @@ export default function drawGraph(
 
   for (let i = 0; i < nodes.length; i++) {
     context.beginPath();
-    const node = nodes[i];
     context.arc(xAxis[i], yAxis[i], NODE_RADIUS, 0, 360);
     context.fill();
+    context.strokeStyle = selectedNodes.has(i) ? 'red' : 'black';
     context.stroke();
   }
   context.restore();
+
+  if (lasso != null) {
+    context.save();
+    context.resetTransform();
+    context.strokeStyle = 'red';
+    context.rect(lasso.x, lasso.y, lasso.width, lasso.height);
+    context.stroke();
+    context.restore();
+  }
 }

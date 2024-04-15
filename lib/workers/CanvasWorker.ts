@@ -5,8 +5,8 @@ import CanvasController from '../render/CanvasController';
 type Input =
   | ['canvas', OffscreenCanvas]
   | ['data', GraphData]
-  | ['mousedown', number, number]
-  | ['mousemove', number, number]
+  | ['mousedown', number, number, boolean]
+  | ['mousemove', number, number, number, number]
   | ['mouseup']
   | ['layout', Layout]
   | ['zoom', 1 | -1, DOMPoint];
@@ -43,10 +43,10 @@ self.onmessage = ({ data }: MessageEvent<Input>) => {
       controller.setLayout(data[1]);
       break;
     case 'mousedown':
-      controller.mouseDown(data[1], data[2]);
+      controller.mouseDown(data[1], data[2], data[3]);
       break;
     case 'mousemove':
-      controller.mouseMove(data[1], data[2]);
+      controller.mouseMove(data[1], data[2], data[3], data[4]);
       break;
     case 'mouseup':
       controller.mouseUp();

@@ -94,10 +94,10 @@ export default class Graph {
     canvasWorker.postMessage(['canvas', offset], [offset]);
 
     const onWheel = (event: WheelEvent) => this.zoom(event);
-    const onMouseDown = ({ offsetX, offsetY }: MouseEvent) =>
-      canvasWorker.postMessage(['mousedown', offsetX, offsetY]);
-    const onMouseMove = ({ movementX, movementY }: MouseEvent) =>
-      canvasWorker.postMessage(['mousemove', movementX, movementY]);
+    const onMouseDown = ({ offsetX, offsetY, altKey }: MouseEvent) =>
+      canvasWorker.postMessage(['mousedown', offsetX, offsetY, altKey]);
+    const onMouseMove = ({ offsetX, offsetY, movementX, movementY }: MouseEvent) =>
+      canvasWorker.postMessage(['mousemove', offsetX, offsetY, movementX, movementY]);
     const onMouseUp = () => canvasWorker.postMessage(['mouseup']);
 
     canvas.addEventListener('wheel', onWheel);
