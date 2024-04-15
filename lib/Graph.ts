@@ -77,6 +77,7 @@ export default class Graph {
     switch (msg[0]) {
       case 'locked':
         this.#locked = msg[1];
+        this.#layoutWorker.postMessage(['setPositions', this.#locked]);
         break;
       case 'render':
         this.#completedRender = true;

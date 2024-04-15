@@ -16,7 +16,8 @@ export type LayoutWorkerRequest =
   | ['setData', GraphData]
   | ['setLayoutType', LayoutType]
   | ['runLayout', Map<number, [number, number]>]
-  | ['setSettings', LayoutSettings];
+  | ['setSettings', LayoutSettings]
+  | ['setPositions', Map<number, [number, number]>];
 
 class LayoutWorkerImpl {
   #prevLayout: Layout = [new Float64Array(), new Float64Array()];
@@ -34,10 +35,13 @@ class LayoutWorkerImpl {
         this.setLayoutType(msg[1]);
         break;
       case 'runLayout':
-        this.runLayout(msg[1]);
+        this.runLayout();
         break;
       case 'setSettings':
         this.setSettings(msg[1]);
+        break;
+      case 'setPositions':
+        this.setPositions(msg[1]);
         break;
     }
   }
@@ -74,10 +78,13 @@ class LayoutWorkerImpl {
     }
   }
 
-  runLayout(locked: Map<number, [number, number]>): void {
-    applyLocks(this.#prevLayout, locked);
+  runLayout(): void {
     this.#prevLayout = this.#layoutImpl.layout(this.#prevLayout);
     self.postMessage(this.#prevLayout);
+  }
+
+  setPositions(nodes: Map<number, [number, number]>): void {
+    applyLocks(this.#prevLayout, nodes);
   }
 }
 

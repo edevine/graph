@@ -56,7 +56,7 @@ export default class CanvasController {
     if (!i) return;
     this.#needsDraw = true;
     this.#draggedNode = i;
-    this.#locked.set(i, [this.#layout[0][i], this.#layout[0][i]]);
+    this.#locked.set(i, [this.#layout[0][i], this.#layout[1][i]]);
     this.#cb.onlock(this.#locked);
   }
 
