@@ -7,7 +7,7 @@ export type CircularLayoutSettings = {
 };
 
 export default class CircularLayout implements GraphLayout {
-  #initialized = false;
+  #finished = false;
   #startTime = 0;
   #startLayout: Layout | null = null;
   #finalLayout: Layout | null = null;
@@ -20,7 +20,7 @@ export default class CircularLayout implements GraphLayout {
   }
 
   layout(previousLayout: Layout): Layout {
-    if (this.#initialized) {
+    if (this.#finished) {
       return previousLayout;
     }
     if (this.#startTime === 0) {
@@ -29,48 +29,15 @@ export default class CircularLayout implements GraphLayout {
     if (this.#finalLayout != null) {
       return this.animate();
     }
-    this.#startLayout = [previousLayout[0].slice(), previousLayout[1].slice()];
-
-    const { minDistance } = this.#settings;
-    const { nodes, edges } = this.#data;
-    const edgeMap = new MultiMap();
-    for (const [source, target] of edges) {
-      edgeMap.add(source, target);
-      edgeMap.add(target, source);
-    }
-
-    const nodeIndices = new Map<string, number>();
-    for (let i = 0; i < nodes.length; i++) {
-      nodeIndices.set(nodes[i], i);
-    }
-
-    const sorted = [...nodes];
-    sorted.sort((a, b) => edgeMap.sizeAt(b) - edgeMap.sizeAt(a));
-
-    const xAxis = new Float64Array(nodes.length);
-    const yAxis = new Float64Array(nodes.length);
-
-    const sweep = 2 * Math.PI - (2 * Math.PI) / nodes.length;
-    const dTheta = sweep / Math.max(1, nodes.length - 1);
-
-    const dcos = Math.cos(dTheta) - Math.cos(0);
-    const dsin = Math.sin(dTheta) - Math.sin(0);
-    const radius = Math.sqrt(minDistance ** 2 / (dcos ** 2 + dsin ** 2));
-
-    for (let i = 0; i < sorted.length; i++) {
-      const theta = i * dTheta;
-      const j = nodeIndices.get(sorted[i])!;
-      xAxis[j] = radius * Math.cos(theta);
-      yAxis[j] = radius * Math.sin(theta);
-    }
-    this.#finalLayout = [xAxis, yAxis];
+    this.#startLayout = previousLayout;
+    this.#finalLayout = computeCircularLayout(this.#settings, this.#data);
     return previousLayout;
   }
 
   animate(): Layout {
     const time = Date.now() - this.#startTime;
     if (time >= 500) {
-      this.#initialized = true;
+      this.#finished = true;
       return this.#finalLayout!;
     }
     const final = this.#finalLayout!;
@@ -89,7 +56,45 @@ export default class CircularLayout implements GraphLayout {
   }
 
   setSettings(settings: CircularLayoutSettings): void {
-    this.#initialized = false;
+    this.#finished = false;
     this.#settings = settings;
   }
+}
+
+function computeCircularLayout(
+  { minDistance }: CircularLayoutSettings,
+  { nodes, edges }: GraphData,
+): Layout {
+  const edgeMap = new MultiMap();
+  for (const [source, target] of edges) {
+    edgeMap.add(source, target);
+    edgeMap.add(target, source);
+  }
+
+  const nodeIndices = new Map<string, number>();
+  for (let i = 0; i < nodes.length; i++) {
+    nodeIndices.set(nodes[i], i);
+  }
+
+  const sorted = nodes.slice();
+  sorted.sort((a, b) => edgeMap.sizeAt(b) - edgeMap.sizeAt(a));
+
+  const xAxis = new Float64Array(nodes.length);
+  const yAxis = new Float64Array(nodes.length);
+
+  const sweep = 2 * Math.PI - (2 * Math.PI) / nodes.length;
+  const dTheta = sweep / Math.max(1, nodes.length - 1);
+
+  const dcos = Math.cos(dTheta) - Math.cos(0);
+  const dsin = Math.sin(dTheta) - Math.sin(0);
+  const radius = Math.sqrt(minDistance ** 2 / (dcos ** 2 + dsin ** 2));
+
+  for (let i = 0; i < sorted.length; i++) {
+    const theta = i * dTheta;
+    const j = nodeIndices.get(sorted[i])!;
+    xAxis[j] = radius * Math.cos(theta);
+    yAxis[j] = radius * Math.sin(theta);
+  }
+
+  return [xAxis, yAxis];
 }
